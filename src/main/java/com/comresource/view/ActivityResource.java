@@ -2,13 +2,18 @@ package com.comresource.view;
 
 import java.util.List;
 
+import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.MultivaluedHashMap;
+import javax.ws.rs.core.MultivaluedMap;
 
 import com.comresource.model.Activity;
+import com.comresource.model.User;
 import com.comresource.repository.ActivityRepository;
 import com.comresource.repository.ActivityRepositoryStub;
 
@@ -17,6 +22,39 @@ import com.comresource.repository.ActivityRepositoryStub;
 public class ActivityResource {
 
 	private ActivityRepository activityRepository = new ActivityRepositoryStub();
+	
+	@POST
+	@Path("activity")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces({MediaType.APPLICATION_JSON,MediaType.APPLICATION_XML})
+	public Activity createActivity(Activity activity){
+		
+		System.out.println(activity.getDescription());
+		System.out.println(activity.getDuration());
+		
+		activityRepository.create(activity);
+		
+		return activity;
+	}
+	
+	@POST
+	@Path("activity")
+	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+	@Produces({MediaType.APPLICATION_JSON,MediaType.APPLICATION_XML})
+	public Activity createActivityParams(MultivaluedMap<String, String> formParams){
+		
+		System.out.println(formParams.getFirst("description"));
+		System.out.println(formParams.getFirst("duration"));
+		
+		Activity activity = new Activity();
+		activity.setDescription(formParams.getFirst("description"));
+		activity.setDuration(Integer.parseInt(formParams.getFirst("duration")));
+		
+		activityRepository.create(activity);
+		
+		return activity;
+		
+	}
 	
 	@GET
 	@Produces({MediaType.APPLICATION_JSON,MediaType.APPLICATION_XML})
@@ -27,15 +65,15 @@ public class ActivityResource {
 	@GET
 	@Produces({MediaType.APPLICATION_JSON,MediaType.APPLICATION_XML})
 	@Path("{activityId}")  //localhost:8080/exercise-services/webapi/activities/1234
-	public Activity getActity(@PathParam ("activityId") String activityId){
+	public Activity getActivity(@PathParam ("activityId") String activityId){
 		return activityRepository.findActivity(activityId);
 	}
 	
 	@GET
 	@Produces({MediaType.APPLICATION_JSON,MediaType.APPLICATION_XML})
 	@Path("{activityId}/user")  //localhost:8080/exercise-services/webapi/activities/1234/user 
-	public Activity getActityUser(@PathParam ("activityId") String activityId){
-		return activityRepository.findActivity(activityId);
+	public User getActivityUser(@PathParam ("activityId") String activityId){
+		return activityRepository.findActivity(activityId).getUser();
 	}
 	
 	
